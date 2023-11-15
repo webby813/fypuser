@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fypuser/Components/title_widget.dart';
 import 'package:fypuser/Components/button_widget.dart';
 import 'package:fypuser/Components/text_widget.dart';
-import 'package:fypuser/Components/inputField_widget.dart';
+import 'package:fypuser/Components/Input_Field_widget.dart';
 import 'package:fypuser/Components/alertDialog_widget.dart';
 
 class Register extends StatefulWidget {
@@ -48,12 +48,12 @@ class _RegisterState extends State<Register> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  child: inputWidget.inputField('Username', Icons.person_outline, username),
+                  child: InputWidget.inputField('Username', Icons.person_outline, username),
                 ),
 
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  child: inputWidget.inputField('E-mail', Icons.email, email),
+                  child: InputWidget.inputField('E-mail', Icons.email, email),
                 ),
 
                 Container(
@@ -79,7 +79,7 @@ class _RegisterState extends State<Register> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialogWidget(
-                                Title: 'Error',
+                                title: 'Error',
                                 content: 'Password must contain at least 8 characters, including at least 1 uppercase letter, 1 number, and 1 special symbol.',
                               );
                             },
@@ -89,7 +89,7 @@ class _RegisterState extends State<Register> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialogWidget(Title: 'Error', content: 'Invalid email format');
+                            return AlertDialogWidget(title: 'Error', content: 'Invalid email format');
                           },
                         );
                       }
@@ -97,21 +97,21 @@ class _RegisterState extends State<Register> {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(Title: 'Error', content: 'Please don\'t leave any fields empty');
+                          return AlertDialogWidget(title: 'Error', content: 'Please don\'t leave any fields empty');
                         },
                       );
                     } else if (password.text != passwordConfirm.text) {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(Title: 'Error', content: 'Password inputs are different');
+                          return AlertDialogWidget(title: 'Error', content: 'Password inputs are different');
                         },
                       );
                     } else {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(Title: 'Error', content: 'Something went wrong');
+                          return AlertDialogWidget(title: 'Error', content: 'Something went wrong');
                         },
                       );
                     }

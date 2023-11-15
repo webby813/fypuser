@@ -14,9 +14,9 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    homePage(),
-    menu(),
-    Profile(),
+    const HomePage(),
+    const Menu(),
+    const Profile(),
   ];
 
   void _onItemTapped(int index) {

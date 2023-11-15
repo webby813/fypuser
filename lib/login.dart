@@ -1,7 +1,7 @@
 import 'package:fypuser/Components/button_widget.dart';
 import 'package:fypuser/Components/text_widget.dart';
 import 'package:fypuser/Components/title_widget.dart';
-import 'package:fypuser/Components/inputField_widget.dart';
+import 'package:fypuser/Components/Input_Field_widget.dart';
 import 'package:fypuser/Firebase/retrieve_data.dart';
 import 'package:fypuser/register.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ class _LoginState extends State<Login> {
                   children:[
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      child: inputWidget.inputField('Username', Icons.person_outline, username),
+                      child: InputWidget.inputField('Username', Icons.person_outline, username),
                     ),
 
                     Container(
@@ -59,19 +59,19 @@ class _LoginState extends State<Login> {
                       padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 15),
                       child: ButtonWidget.buttonWidget('LOG IN', (){
                         if(username.text.isNotEmpty && password.text.isNotEmpty){
-                          Identify().Login(context, username.text, password.text);
+                          Identify().loginCheck(context, username.text, password.text);
                         }
                         else if(username.text.isEmpty || password.text.isEmpty){
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return AlertDialogWidget(Title: 'Error', content: 'Invalid credential');
+                              return const AlertDialogWidget(title: 'Error', content: 'Invalid credential');
                             },
                           );
                         }
                         else{
                           showDialog(context: context, builder: (BuildContext context){
-                            return AlertDialogWidget(Title: 'Error', content: 'Unknown error');
+                            return const AlertDialogWidget(title: 'Error', content: 'Unknown error');
                           });
                         }
                       }),
@@ -84,7 +84,7 @@ class _LoginState extends State<Login> {
                         TextButton(
                           child: TextWidget.textWidget('Register'),
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => Register()));
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const Register()));
                           },
                         ),
                       ],
