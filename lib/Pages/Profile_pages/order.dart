@@ -26,6 +26,7 @@ class _HistoryState extends State<History> {
       username = prefs.getString('username') ?? '';
     });
   }
+
   @override
   void initState() {
     super.initState();

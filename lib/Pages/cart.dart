@@ -8,7 +8,7 @@ import 'package:fypuser/Components/title_widget.dart';
 import 'package:fypuser/Components/divider_widget.dart';
 import 'package:fypuser/Components/button_widget.dart';
 import 'package:fypuser/Components/cart_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import your custom CartItem widget here
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  late DatabaseReference? query;
+  DatabaseReference? query; // Removed 'late'
   String? userShared = '';
 
   String paymentType = "Cash";
@@ -28,6 +28,14 @@ class _CartState extends State<Cart> {
   double? finalTotal = 0.0;
 
   String username = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getUserData();
+    listenTotal();
+  }
+
   Future<void> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -60,18 +68,8 @@ class _CartState extends State<Cart> {
           grandTotal = sumTotal;
           finalTotal = grandTotal; // Update the finalTotal with the calculated grandTotal
         });
-
-        // print("Grand Total: $grandTotal");
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getUserData();
-    listenTotal();
-
   }
 
   @override
@@ -80,119 +78,118 @@ class _CartState extends State<Cart> {
       appBar: AppBar(
         backgroundColor: CustomColors.defaultWhite,
         elevation: 0,
-        title: BarTitle.AppBarText('Cart'),
+        title: BarTitle.AppBarText('Your Cart'),
         iconTheme: const IconThemeData(
           color: CustomColors.primaryColor,
         ),
       ),
-      body: ListView(
+      body: Column(
         children: [
-          Container(
-            child: OrderTitle.orderTitle('Your order', 17.0, FontWeight.w500),
-          ),
-          const DivideWidget(),
+          // Container(
+          //   child: OrderTitle.orderTitle('Your order', 17.0, FontWeight.w500),
+          // ),
+          // const DivideWidget(),
           // Use your custom CartItem widget here
           CartItem(paymentType: paymentType,),
 
-          Expanded(
-            child: Row(
-              children: [
-                Container(
-                  child: OrderTitle.orderTitle('Payment method', 17, FontWeight.w500),
-                ),
+          Row(
+            children: [
+              Container(
+                child: OrderTitle.orderTitle('Payment method', 17, FontWeight.w500),
+              ),
 
-                Expanded(
-                  child: DropdownButtonFormField(
-                    items: ["Cash", "E-wallet",].map<DropdownMenuItem<String>>((element) {
-                      Widget displayWidget = Container();
-                      switch (element) {
-                        case "Cash":
-                          displayWidget = const Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Icon(Icons.attach_money),
-                              ),
-                              Expanded(
-                                flex: 9,
-                                child: Text("Cash"),
-                              ),
-                            ],
-                          );
-                          break;
-                        case "E-wallet":
-                          displayWidget = const Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Icon(Icons.phone_iphone),
-                              ),
-                              Expanded(
-                                flex: 9,
-                                child: Text("E-wallet"),
-                              ),
-                            ],
-                          );
-                          break;
-                      }
-                      return DropdownMenuItem(
-                        value: element,
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width - 222,
-                          child: displayWidget,
-                        ),
-                      );
-                    }).toList(),
-                    value: paymentType, // default value
-                    onChanged: (val) {
-                      setState(() {
-                        paymentType = val!;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(19),
+              Expanded(
+                child: DropdownButtonFormField(
+                  items: ["Cash", "E-wallet",].map<DropdownMenuItem<String>>((element) {
+                    Widget displayWidget = Container();
+                    switch (element) {
+                      case "Cash":
+                        displayWidget = const Row(
+                          children: [
+                            Expanded(
+                              flex: 8,
+                              child: Icon(Icons.attach_money),
+                            ),
+                            Expanded(
+                              flex: 10,
+                              child: Text("Cash"),
+                            ),
+                          ],
+                        );
+                        break;
+                      case "E-wallet":
+                        displayWidget = const Row(
+                          children: [
+                            Expanded(
+                              flex: 8,
+                              child: Icon(Icons.phone_iphone),
+                            ),
+                            Expanded(
+                              flex: 10,
+                              child: Text("E-wallet"),
+                            ),
+                          ],
+                        );
+                        break;
+                    }
+                    return DropdownMenuItem(
+                      value: element,
+                      child: SizedBox(
+                        // Adjust the width here
+                        width: MediaQuery.of(context).size.width - 250, // Adjust the width as needed
+                        child: displayWidget,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: CustomColors.lightGreen), // Customize focused border color as needed
-                        borderRadius: BorderRadius.circular(19),
-                      ),
+                    );
+                  }).toList(),
+                  value: paymentType, // default value
+                  onChanged: (val) {
+                    setState(() {
+                      paymentType = val!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(19),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(19),
                     ),
                   ),
-                )
+                ),
+              )
+
+            ],
+          ),
+
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                if (query != null)
+                  Expanded(
+                    child: FirebaseAnimatedList(
+                      shrinkWrap: true,
+                      query: query!,
+                      itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
+                        Map data = snapshot.value as Map;
+                        data['key'] = snapshot.key;
+                        double totalValue = data['total'] ?? 0.0;
+                        if (data['total'] != null) {
+                          sumTotal += totalValue;
+                        }
+                        finalTotal = sumTotal;
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
               ],
             ),
           ),
 
-
-          Row(
-            children: <Widget>[
-              if (query != null)
-                Expanded(
-                  child: FirebaseAnimatedList(
-                    shrinkWrap: true,
-                    query: query!,
-                    itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index) {
-                      Map data = snapshot.value as Map;
-                      data['key'] = snapshot.key;
-                      double totalValue = data['total'] ?? 0.0;
-                      if (data['total'] != null) {
-                        sumTotal += totalValue;
-                        // print(sumTotal);
-                      }
-                      finalTotal = sumTotal; // Update the finalTotal with the calculated grandTotal
-                      return const SizedBox.shrink(); // Return an empty widget (SizedBox.shrink()) to not display anything
-                    },
-                  ),
-                ),
-            ],
-          ),
-
           const DivideWidget(),
           Container(
-            child: OrderTitle.orderTitle('Grand Total: ${grandTotal.toStringAsFixed(2)}', 18, FontWeight.w800),
+            child: OrderTitle.orderTitle('Grand Total: ${grandTotal.toStringAsFixed(2)}', 18, FontWeight.w500),
           ),
 
           const DivideWidget(),

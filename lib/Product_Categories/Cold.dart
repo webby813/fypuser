@@ -18,7 +18,7 @@ class _ColdCoffeeState extends State<ColdCoffee> {
         crossAxisCount: 2,
         mainAxisSpacing: 20,
         crossAxisSpacing: 10,
-        children: <Widget>[
+        children: const <Widget>[
           CustomMenuCard(
               imageName: 'assets/Coffee/Americano.png',
               title: 'Iced Americano',
