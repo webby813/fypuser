@@ -94,68 +94,63 @@ class _ProfileState extends State<Profile> {
         elevation: 0,
         title: BarTitle.AppBarText('Account'),
       ),
-
       body: ListView(
         children: [
-          Center(
-            child: AvatarWidgetEdit(
+          if (imageUrl != null && imageUrl!.isNotEmpty) // Conditionally render AvatarWidgetEdit
+            Center(
+              child: AvatarWidgetEdit(
                 userimage: '$imageUrl',
-                username: usernameInfo
+                username: usernameInfo,
+              ),
             ),
-          ),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 125, vertical: 20),
-            child: ButtonWidget.buttonWidget('Edit Profile', (){
+            child: ButtonWidget.buttonWidget('Edit Profile', () {
               Listen().listenData();
               Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfile()));
             }),
           ),
-
-          const DivideWidget(),///Divide Line
+          const DivideWidget(), ///Divide Line
           DrawerWidget(
-              title: "Wallet",
-              icon: Icons.wallet,
-              onPress: (){
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletPage()));
-              }
+            title: "Wallet",
+            icon: Icons.wallet,
+            onPress: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletPage()));
+            },
           ),
-
-          const DivideWidget(),///Divide Line
+          const DivideWidget(), ///Divide Line
           DrawerWidget(
-              title: "Order",
-              icon: Icons.list_alt,
-              onPress: (){
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const History()));
-              }
+            title: "Order",
+            icon: Icons.list_alt,
+            onPress: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const History()));
+            },
           ),
-
-          const DivideWidget(),///Divide Line
+          const DivideWidget(), ///Divide Line
           DrawerWidget(
-              title: "About author",
-              icon: Icons.person,
-              onPress: (){}
+            title: "About author",
+            icon: Icons.person,
+            onPress: () {},
           ),
-
-          const DivideWidget(),///Divide Line
+          const DivideWidget(), ///Divide Line
           const Padding(padding: EdgeInsets.all(55)),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 20),
-            child: SecondButtonWidget.buttonWidget('Log out', ()async{
+            child: SecondButtonWidget.buttonWidget('Log out', () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.clear(); // Clear shared preferences
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const Login()),
-                    (
-                    Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
               );
             }),
           ),
         ],
-      )
+      ),
     );
   }
+
 }
 
 
