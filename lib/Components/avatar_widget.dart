@@ -34,7 +34,7 @@ class AvatarWidget extends StatelessWidget {
 
 
 class AvatarWidgetEdit extends StatelessWidget {
-  AvatarWidgetEdit({super.key, required this.userimage,
+  const AvatarWidgetEdit({super.key, required this.userimage,
   required this.username,});
 
   final String userimage;
@@ -45,7 +45,7 @@ class AvatarWidgetEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(padding: EdgeInsets.all(20)),
+        const Padding(padding: EdgeInsets.all(20)),
         Card(
           elevation: 3,
           shape: RoundedRectangleBorder(
@@ -54,9 +54,6 @@ class AvatarWidgetEdit extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               UpdatePhoto().selectImageFromGallery(username);
-              // Handle the tap gesture here, e.g., navigate to a new screen.
-              // You can use Navigator.push or any other method to navigate.
-              print('Avatar tapped!');
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
