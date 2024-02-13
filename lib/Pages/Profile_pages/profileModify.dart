@@ -9,14 +9,14 @@ import '../../Components/barTitle_widget.dart';
 import '../../Components/container_widget.dart';
 import '../../Components/divider_widget.dart';
 
-class UserProfile extends StatefulWidget {
-  const UserProfile({Key? key}) : super(key: key);
+class ProfileModify extends StatefulWidget {
+  const ProfileModify({Key? key}) : super(key: key);
 
   @override
-  State<UserProfile> createState() => _UserProfileState();
+  State<ProfileModify> createState() => _ProfileModifyState();
 }
 
-class _UserProfileState extends State<UserProfile> {
+class _ProfileModifyState extends State<ProfileModify> {
   String usernameInfo = '';
   String useremailInfo = '';
   String userImagePath = '';
@@ -100,12 +100,18 @@ class _UserProfileState extends State<UserProfile> {
         ),
         body: ListView(
           children: [
-            Center(
-              child: AvatarWidgetEdit(
-                  userimage: '$imageUrl',
-                  username: usernameInfo
+            if (imageUrl != null && imageUrl!.isNotEmpty)
+              Center(
+                child: AvatarWidgetEdit(
+                    userimage: '$imageUrl',
+                    username: usernameInfo
+                  ),
+                )
+            else // Conditionally render AvatarWidget
+            const Center(
+              child: AvatarWidget(
+                ),
               ),
-            ),
 
             const Padding(padding: EdgeInsets.all(20)),
             const DivideWidget(),///Divide Line

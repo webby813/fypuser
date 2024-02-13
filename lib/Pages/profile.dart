@@ -87,7 +87,8 @@ class _ProfileState extends State<Profile> {
     });
   }
   @override
-  Widget build(context) {
+
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColors.defaultWhite,
@@ -96,18 +97,24 @@ class _ProfileState extends State<Profile> {
       ),
       body: ListView(
         children: [
-          if (imageUrl != null && imageUrl!.isNotEmpty) // Conditionally render AvatarWidgetEdit
+          if (imageUrl != null && imageUrl!.isNotEmpty)
             Center(
               child: AvatarWidgetEdit(
                 userimage: '$imageUrl',
                 username: usernameInfo,
               ),
+            )
+          else // Conditionally render AvatarWidget
+            const Center(
+              child: AvatarWidget(
+              ),
             ),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 125, vertical: 20),
             child: ButtonWidget.buttonWidget('Edit Profile', () {
               Listen().listenData();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfile()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileModify()));
             }),
           ),
           const DivideWidget(), ///Divide Line
