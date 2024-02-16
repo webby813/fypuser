@@ -5,7 +5,7 @@ import 'package:fypuser/Product_Categories/Non_Coffee.dart';
 import 'package:fypuser/Product_Categories/Patries.dart';
 import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
-import 'package:fypuser/Components/barTitle_widget.dart';
+import '../../Components/title_widget.dart';
 import 'package:fypuser/Pages/cart.dart';
 
 class Menu extends StatefulWidget {

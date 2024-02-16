@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
-import 'package:fypuser/Components/barTitle_widget.dart';
+import '../../Components/title_widget.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});

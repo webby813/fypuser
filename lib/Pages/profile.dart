@@ -9,7 +9,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
-import 'package:fypuser/Components/barTitle_widget.dart';
+import '../../Components/title_widget.dart';
 import 'package:fypuser/Components/divider_widget.dart';
 import 'package:fypuser/Pages/Profile_pages/wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';

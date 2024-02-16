@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Color/color.dart';
 import '../../Components/avatar_widget.dart';
-import '../../Components/barTitle_widget.dart';
+import '../../Components/title_widget.dart';
 import '../../Components/container_widget.dart';
 import '../../Components/divider_widget.dart';
 

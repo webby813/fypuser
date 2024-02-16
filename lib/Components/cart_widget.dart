@@ -67,7 +67,7 @@ class _CartItemState extends State<CartItem> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     // Show a placeholder while waiting for the image URL
                     return const CircularProgressIndicator(
-                      strokeWidth: 4.0,
+                      strokeWidth: 1.0,
                     );
                   }
 
