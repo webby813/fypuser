@@ -17,7 +17,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  DatabaseReference? query; // Removed 'late'
+  DatabaseReference? query;
   String? userShared = '';
 
   String paymentType = "Cash";
@@ -82,13 +82,9 @@ class _CartState extends State<Cart> {
           color: CustomColors.primaryColor,
         ),
       ),
-      body: Column(
+      body: ListView(
+        scrollDirection: Axis.vertical,
         children: [
-          // Container(
-          //   child: OrderTitle.orderTitle('Your order', 17.0, FontWeight.w500),
-          // ),
-          // const DivideWidget(),
-          // Use your custom CartItem widget here
           CartItem(paymentType: paymentType,),
 
           Row(
