@@ -252,8 +252,35 @@ class EditDrawer extends StatelessWidget {
   }
 }
 
-
-
+class CustomListTile {
+  static Widget walletListtile({
+    required String text,
+    required IconData icon,
+    required bool isSelected,
+    required Function() onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5, left: 3, right: 3),
+      decoration: BoxDecoration(
+        color: CustomColors.defaultWhite,
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          color: CustomColors.lightGrey,
+        ),
+      ),
+      child: ListTile(
+        leading: Checkbox(
+          value: isSelected,
+          onChanged: (_) => onTap(),
+          shape: const CircleBorder(),
+        ),
+        title: Text(text),
+        trailing: Icon(icon),
+        onTap: () => onTap(),
+      ),
+    );
+  }
+}
 
 
 
