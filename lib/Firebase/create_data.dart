@@ -38,7 +38,7 @@ class Service{
           },
         );
       } else {
-        await db.add(data);
+        await db.doc(email).set(data);
         showDialog(
           context: context,
           builder: (BuildContext context) {

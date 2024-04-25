@@ -16,7 +16,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  TextEditingController username = TextEditingController();
+  TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
   Future<bool> isLoggedIn() async {
@@ -47,7 +47,7 @@ class _LoginState extends State<Login> {
                   children:[
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      child: InputWidget.inputField('Username', Icons.person_outline, username),
+                      child: InputWidget.inputField('Username', Icons.person_outline, email),
                     ),
 
                     Container(
@@ -58,14 +58,15 @@ class _LoginState extends State<Login> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 15),
                       child: ButtonWidget.buttonWidget('LOG IN', (){
-                        if(username.text.isNotEmpty && password.text.isNotEmpty){
-                          Identify().loginCheck(context, username.text, password.text);
+                        if(email.text.isNotEmpty && password.text.isNotEmpty){
+                          // Identify().loginCheck(context, username.text, password.text);
+                          Checking().checkCredential(context, email.text, password.text);
                         }
-                        else if(username.text.isEmpty || password.text.isEmpty){
+                        else if(email.text.isEmpty || password.text.isEmpty){
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return const AlertDialogWidget(title: 'Error', content: 'Invalid credential');
+                              return const AlertDialogWidget(title: 'Error', content: 'Empty credential');
                             },
                           );
                         }
