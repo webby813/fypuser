@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Components/alertDialog_widget.dart';
 
-class RegisterService{
+class Service{
   final dbRef = FirebaseDatabase.instance.ref().child('User');
   bool isEmailValid(String email) {
     const pattern =
@@ -13,45 +14,52 @@ class RegisterService{
     return regExp.hasMatch(email);
   }
 
-  void createData(context, String username, String email, String password){
-    var newChildRef = dbRef.push();
-    var uniqueKey = newChildRef.key;
+  void register(context, String username, String email, String password) async {
+    final db = FirebaseFirestore.instance.collection("users");
+    final data = {
+      "name": username,
+      "email": email,
+      "password": password,
+      "user_picture": "Default.png",
+      "wallet_balance": 0
+    };
 
-    try{
-      if(dbRef.child(username.toString()) == username){
+    try {
+      QuerySnapshot snapshot = await db.where("email", isEqualTo: email).get();
+
+      if (snapshot.docs.isNotEmpty) {
         showDialog(
-            context: context,
-            builder: (BuildContext context){
-              return const AlertDialogWidget(
-                  title: 'Sorry!',
-                  content: 'Username has been taken by others.\nPlease try again!'
-              );
-            });
-      }
-      else{
-        dbRef.child(username.toString()).set({
-          'Username' : username,
-          'Email' : email,
-          'Password' : password,
-          'userImage' : 'Default.png'
-        });
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialogWidget(
+              title: 'Sorry!',
+              content: 'Email has been taken by others.\nPlease try again!',
+            );
+          },
+        );
+      } else {
+        await db.add(data);
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return const AlertDialogWidget(
               title: 'You did it',
-              content: ('You can login now'),
-
+              content: 'You can login now',
             );
           },
         );
       }
-    }catch(e){
-      // print(e);
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialogWidget(
+            title: 'An error occur',
+            content: 'Try again later$e',
+          );
+        },
+      );
     }
-    // print('Generated unique key: $uniqueKey');
-    // print(newChildRef.key);
-
   }
 }
 

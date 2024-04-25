@@ -24,7 +24,7 @@ class _RegisterState extends State<Register> {
   TextEditingController passwordConfirm = TextEditingController();
 
   bool isEmailValid(String email) {
-    final pattern = r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
+    const pattern = r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
     final regExp = RegExp(pattern);
     return regExp.hasMatch(email);
   }
@@ -73,12 +73,12 @@ class _RegisterState extends State<Register> {
                       if (isEmailValid(email.text)) {
                         if (password.text.length >= 8 &&
                             RegExp(r'^(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#$&*~]).*$').hasMatch(password.text)) {
-                            RegisterService().createData(context, username.text, email.text, password.text);
+                            Service().register(context, username.text, email.text, password.text);
                         } else {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return AlertDialogWidget(
+                              return const AlertDialogWidget(
                                 title: 'Error',
                                 content: 'Password must contain at least 8 characters, including at least 1 uppercase letter, 1 number, and 1 special symbol.',
                               );
@@ -89,7 +89,7 @@ class _RegisterState extends State<Register> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialogWidget(title: 'Error', content: 'Invalid email format');
+                            return const AlertDialogWidget(title: 'Error', content: 'Invalid email format');
                           },
                         );
                       }
@@ -97,21 +97,21 @@ class _RegisterState extends State<Register> {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(title: 'Error', content: 'Please don\'t leave any fields empty');
+                          return const AlertDialogWidget(title: 'Error', content: 'Please don\'t leave any fields empty');
                         },
                       );
                     } else if (password.text != passwordConfirm.text) {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(title: 'Error', content: 'Password inputs are different');
+                          return const AlertDialogWidget(title: 'Error', content: 'Password inputs are different');
                         },
                       );
                     } else {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialogWidget(title: 'Error', content: 'Something went wrong');
+                          return const AlertDialogWidget(title: 'Error', content: 'Something went wrong');
                         },
                       );
                     }
@@ -125,7 +125,7 @@ class _RegisterState extends State<Register> {
                     TextButton(
                       child: TextWidget.textWidget('SignIn'),
                       onPressed: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Login()));
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const Login()));
                       },
                     ),
                   ],
