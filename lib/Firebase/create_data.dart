@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Components/alertDialog_widget.dart';
 
 class Service{
-  final dbRef = FirebaseDatabase.instance.ref().child('User');
   bool isEmailValid(String email) {
     const pattern =
         r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
