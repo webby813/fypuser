@@ -72,13 +72,13 @@ class AddItem {
     String? username = sharedPref.getString('username');
 
     final DatabaseReference ref = FirebaseDatabase.instance.ref().child('User/$username/Cart/$itemName');
-    final DatabaseReference listemItemName = FirebaseDatabase.instance.ref().child('Item/$itemName/Itemname');
+    final DatabaseReference listenItemName = FirebaseDatabase.instance.ref().child('Item/$itemName/Itemname');
     final DatabaseReference listenItemImage = FirebaseDatabase.instance.ref().child('Item/$itemName/itemImage');
     final DatabaseReference listenItemPrice = FirebaseDatabase.instance.ref().child('Item/$itemName/price');
 
     List<Future<void>> futures = [];
     try{
-      futures.add(listemItemName.onValue.first.then((event) {
+      futures.add(listenItemName.onValue.first.then((event) {
         var snapshot = event.snapshot;
         itemNameFromdb = snapshot.value as String;
         // print(itemNameFromdb);
