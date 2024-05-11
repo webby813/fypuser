@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fypuser/Components/bottomSheet_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
@@ -102,32 +103,64 @@ class CustomCard extends StatelessWidget {
 
 
 ///CustomMenuCard use to review products in Menu
-class CustomMenuCard extends StatelessWidget {
-  const CustomMenuCard({super.key, required this.imageName, required this.title, required this.price, required this.description});
-
+class CustomMenuCard extends StatefulWidget {
   final String imageName;
   final String title;
   final double price;
   final String description;
 
+  const CustomMenuCard({
+    Key? key,
+    required this.imageName,
+    required this.title,
+    required this.price,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  _CustomMenuCardState createState() => _CustomMenuCardState();
+}
+
+class _CustomMenuCardState extends State<CustomMenuCard> {
+  late String downloadUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadItemPicture();
+  }
+
+  Future<void> loadItemPicture() async {
+    final storeRef = FirebaseStorage.instance.ref().child('Items/${widget.imageName}');
+    try {
+      final imageUrl = await storeRef.getDownloadURL();
+      setState(() {
+        downloadUrl = imageUrl;
+      });
+    } catch (e) {
+      print('Error retrieving image URL: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-        showModalBottomSheet(context: context,
-            isScrollControlled: true,
-            builder: (BuildContext context){
-              return ProductBottomSheet(
-                imageName: imageName,
-                title: title,
-                price: price,
-                description: description,
-              );
-            }
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return ProductBottomSheet(
+              imageName: downloadUrl,
+              title: widget.title,
+              price: widget.price,
+              description: widget.description,
+            );
+          },
         );
       },
       child: Card(
-        shadowColor: CustomColors.defaultWhite,
+        shadowColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -137,16 +170,20 @@ class CustomMenuCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
-                child: Image.asset(
-                  imageName,
+                child: downloadUrl.isNotEmpty
+                    ? Image.network(
+                  downloadUrl,
                   fit: BoxFit.cover,
-                ),
+                )
+                    : Center(
+                  child: CircularProgressIndicator(),
+                ), // Show spinner when downloadUrl is empty
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(1.0),
               child: Text(
-                title,
+                widget.title,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -155,7 +192,7 @@ class CustomMenuCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(4.0),
               child: Text(
-                'RM $price',
+                'RM ${widget.price}',
                 style: const TextStyle(
                   fontSize: 14,
                 ),
@@ -163,10 +200,13 @@ class CustomMenuCard extends StatelessWidget {
             ),
           ],
         ),
+
       ),
     );
   }
 }
+
+
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({Key? key, required this.title, required this.icon, required this.onPress, this.endIcon = true, this.textColor,}) : super(key: key);

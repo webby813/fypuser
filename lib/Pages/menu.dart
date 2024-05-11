@@ -74,6 +74,7 @@ class _MenuState extends State<Menu> {
               labelColor: CustomColors.primaryColor,
               isScrollable: true,
             ),
+
             Expanded(
               child: TabBarWidget(tabs: _tabs, tabViews: _tabViews).buildTabBarView(),
             )
@@ -111,7 +112,7 @@ class CategoryWidget extends StatelessWidget {
               for (var item in items) {
                 itemWidgets.add(
                   CustomMenuCard(
-                    imageName: 'assets/Coffee/Americano.png', // Assuming 'image' is the field containing the image URL
+                    imageName: item['item_picture'], // Assuming 'image' is the field containing the image URL
                     title: item['item_name'],
                     price: double.parse(item['price']),
                     description: item['description'],

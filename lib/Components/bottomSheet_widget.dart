@@ -57,7 +57,7 @@ class _ProductBottomSheetState extends State<ProductBottomSheet> {
                         const Padding(padding: EdgeInsets.all(10)),
                         Tooltip(
                           message: 'This is the description for the image',
-                          child: Image.asset(
+                          child: Image.network(
                             widget.imageName,
                             width: 250,
                             height: 250,
