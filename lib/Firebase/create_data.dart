@@ -62,54 +62,43 @@ class Service{
   }
 }
 
-class AddItem {
-  Future<void> addToCart(context, String itemName, double price, int qty) async {
-    String itemNameFromdb = '';
-    String itemImageFromdb = '';
-    double itemPriceFromdb = 0.0;
+class UserDo {
+  Future<void> isItemExist(BuildContext context, String selectedCategory, String itemName, int quantity) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString("email");
+    final dbRef = FirebaseFirestore.instance;
 
-    SharedPreferences sharedPref = await SharedPreferences.getInstance();
-    String? username = sharedPref.getString('username');
+    final userCartItemSnapshot = await dbRef
+        .collection('users')
+        .doc(userEmail.toString())
+        .collection('cart')
+        .where('item_name', isEqualTo: itemName)
+        .get();
 
-    final DatabaseReference ref = FirebaseDatabase.instance.ref().child('User/$username/Cart/$itemName');
-    final DatabaseReference listenItemName = FirebaseDatabase.instance.ref().child('Item/$itemName/Itemname');
-    final DatabaseReference listenItemImage = FirebaseDatabase.instance.ref().child('Item/$itemName/itemImage');
-    final DatabaseReference listenItemPrice = FirebaseDatabase.instance.ref().child('Item/$itemName/price');
+    if (userCartItemSnapshot.docs.isNotEmpty) {
+      final userCartItemDoc = userCartItemSnapshot.docs.first;
+      int currentQuantity = userCartItemDoc['quantity'] ?? 0;
+      await userCartItemDoc.reference.update({'quantity': currentQuantity + quantity});
+    } else {
+      addToCart(context, selectedCategory, itemName, quantity);
+    }
+  }
 
-    List<Future<void>> futures = [];
-    try{
-      futures.add(listenItemName.onValue.first.then((event) {
-        var snapshot = event.snapshot;
-        itemNameFromdb = snapshot.value as String;
-        // print(itemNameFromdb);
-      }));
+  Future<void> addToCart(context, String selectedCategory, String itemName, int quantity) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userEmail = prefs.getString("email");
 
-      futures.add(listenItemImage.onValue.first.then((event) {
-        var snapshot = event.snapshot;
-        itemImageFromdb = snapshot.value as String;
-        // print(itemImageFromdb);
-      }));
+      final dbRef = FirebaseFirestore.instance;
+      DocumentSnapshot itemSnapshot = await dbRef.collection('items').doc(selectedCategory).collection('content').doc(itemName).get();
 
-      futures.add(listenItemPrice.onValue.first.then((event) {
-        var snapshot = event.snapshot;
-        itemPriceFromdb = snapshot.value as double;
-        // print(itemPriceFromdb);
-      }));
-      // Wait for all the listeners to complete before updating the cart
-      await Future.wait(futures);
-      ref.update(
-        {
-          'itemImage': itemImageFromdb,
-          'itemName': itemNameFromdb,
-          'price': itemPriceFromdb,
-          'qty': qty,
-          'total': price * qty,
-        },
-      );
-      SuccessDialog.show(context);
-    }catch(e){
-      FailureDialog.show(context);
+      Map<String, dynamic> selectedItem = itemSnapshot.data() as Map<String, dynamic>;
+      selectedItem['quantity'] = quantity;
+      await dbRef.collection('users').doc(userEmail.toString()).collection('cart').doc(itemName).set(selectedItem);
+
+    } catch (e) {
       // print(e);
     }
   }
+
 }

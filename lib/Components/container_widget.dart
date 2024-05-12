@@ -32,12 +32,20 @@ class CustomContainer extends StatelessWidget {
 
 ///Custome Card use for Recommend list in homePage.dart
 class CustomCard extends StatelessWidget {
-  const CustomCard({super.key, required this.imageName, required this.title, required this.price, required this.description});
+  const CustomCard({
+    super.key,
+    required this.imageName,
+    required this.title,
+    required this.price,
+    required this.description,
+    required this.selectedCategory
+  });
 
   final String imageName;
   final String title;
   final double price;
   final String description;
+  final String selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +60,11 @@ class CustomCard extends StatelessWidget {
                   builder: (BuildContext context){
                     return ProductBottomSheet(
                       imageName: imageName,
-                      title: title,
+                      itemName: title,
                       price: price,
                       description: description,
+                      selectedCategory: selectedCategory,
+
                     );
                   }
               );
@@ -105,16 +115,18 @@ class CustomCard extends StatelessWidget {
 ///CustomMenuCard use to review products in Menu
 class CustomMenuCard extends StatefulWidget {
   final String imageName;
-  final String title;
+  final String itemName;
   final double price;
   final String description;
+  final String selectedCategory;
 
   const CustomMenuCard({
     Key? key,
     required this.imageName,
-    required this.title,
+    required this.itemName,
     required this.price,
     required this.description,
+    required this.selectedCategory,
   }) : super(key: key);
 
   @override
@@ -152,9 +164,10 @@ class _CustomMenuCardState extends State<CustomMenuCard> {
           builder: (BuildContext context) {
             return ProductBottomSheet(
               imageName: downloadUrl,
-              title: widget.title,
+              itemName: widget.itemName,
               price: widget.price,
               description: widget.description,
+              selectedCategory: widget.selectedCategory,
             );
           },
         );
@@ -183,7 +196,7 @@ class _CustomMenuCardState extends State<CustomMenuCard> {
             Padding(
               padding: const EdgeInsets.all(1.0),
               child: Text(
-                widget.title,
+                widget.itemName,
                 style: const TextStyle(
                   fontSize: 16,
                 ),

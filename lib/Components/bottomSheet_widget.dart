@@ -7,15 +7,17 @@ class ProductBottomSheet extends StatefulWidget {
   const ProductBottomSheet({
     super.key,
     required this.imageName,
-    required this.title,
+    required this.itemName,
     required this.price,
     required this.description,
+    required this.selectedCategory,
   });
 
   final String imageName;
-  final String title;
+  final String itemName;
   final double price;
   final String description;
+  final String selectedCategory;
 
   @override
   _ProductBottomSheetState createState() => _ProductBottomSheetState();
@@ -65,7 +67,7 @@ class _ProductBottomSheetState extends State<ProductBottomSheet> {
                           ),
                         ),
                         Text(
-                          widget.title,
+                          widget.itemName,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
@@ -140,10 +142,10 @@ class _ProductBottomSheetState extends State<ProductBottomSheet> {
                 ButtonWidget.buttonWidget(
                   'Add to cart',
                       () {
-                    AddItem().addToCart(context, widget.title, widget.price, _quantity);
-                    // Perform the action when the button is pressed
-                    // For example, add the product to the cart
-                    // Navigator.of(context).pop();
+                    // AddItem().addToCart(context, widget.title, widget.price, _quantity);
+                    // UserDo().addToCart(context, widget.selectedCategory, widget.itemName);
+                    UserDo().isItemExist(context, widget.selectedCategory, widget.itemName, _quantity);
+                    Navigator.of(context).pop();
                   },
                 )
               ],
