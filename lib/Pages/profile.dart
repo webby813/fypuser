@@ -143,7 +143,7 @@ class _ProfileState extends State<Profile> {
           const Padding(padding: EdgeInsets.all(55)),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 20),
-            child: SecondButtonWidget.buttonWidget('Log out', () async {
+            child: SecondButtonWidget.buttonWidget(50, 180, 'Log out', CustomColors.warningRed, () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.clear(); // Clear shared preferences
               Navigator.pushAndRemoveUntil(

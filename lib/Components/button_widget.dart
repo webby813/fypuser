@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fypuser/Color/color.dart';
 
 class ButtonWidget{
   static Widget buttonWidget(String title, onPressed) {
@@ -25,22 +26,27 @@ class ButtonWidget{
 }
 
 class SecondButtonWidget{
-  static Widget buttonWidget(String title, onPressed) {
-    return SizedBox(
-      width: 180,
-      child: ElevatedButton(
-        onPressed: () => onPressed(),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: const StadiumBorder(),
-          elevation: 5,
-          shadowColor: Colors.black87,
-        ),
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+  static Widget buttonWidget(double buttonHeight, double buttonWidth, String title, textColor, onPressed) {
+    return Container(
+      color: CustomColors.defaultWhite,
+      child: SizedBox(
+        height: buttonHeight,
+        width: buttonWidth,
+        child: ElevatedButton(
+          onPressed: () => onPressed(),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: const StadiumBorder(),
+            elevation: 5,
+            shadowColor: Colors.black87,
+          ),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
