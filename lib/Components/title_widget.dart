@@ -70,7 +70,7 @@ class SubTitle{
 class OrderTitle{
   static orderTitle(String text, double fontSize, fontWeight){
     return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 10, 14, 16),
+        padding: const EdgeInsets.fromLTRB(10, 3, 14, 16),
     child: Text(
       text,
       style: TextStyle(
@@ -82,7 +82,7 @@ class OrderTitle{
   }
 }
 
-class Totaltitle{
+class GrandTitle{
   static totalTitle(String text, double fontSize, fontWeight){
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 14, 16),
