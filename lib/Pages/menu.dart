@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fypuser/Components/spinner_widget.dart';
@@ -112,10 +111,11 @@ class CategoryWidget extends StatelessWidget {
               for (var item in items) {
                 itemWidgets.add(
                   CustomMenuCard(
-                    imageName: item['item_picture'], // Assuming 'image' is the field containing the image URL
-                    title: item['item_name'],
+                    imageName: item['item_picture'],
+                    itemName: item['item_name'],
                     price: double.parse(item['price']),
                     description: item['description'],
+                    selectedCategory: item['category'],
                   ),
                 );
               }
