@@ -18,6 +18,29 @@ class RetrieveData {
       return [];
     }
   }
+
+  Future<double> retrievePriceQty(String userEmail) async {
+    try {
+      var grandTotal = 0.0;
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userEmail)
+          .collection('cart')
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        var itemPrice = double.parse(doc['price']);
+        var quantity = doc['quantity'];
+
+        grandTotal += itemPrice * quantity;
+      }
+
+      return grandTotal;
+    } catch (e) {
+      // print('Error retrieving price and quantity: $e');
+      throw e; // Throw the error to indicate failure
+    }
+  }
 }
 
 class Checking{
@@ -62,7 +85,7 @@ class Listen {
     dbRef.onValue.listen((event) {
       var snapshot = event.snapshot;
       var data = snapshot.value.toString() as Map<dynamic, dynamic>?;
-      }
+    }
     );
   }
 }

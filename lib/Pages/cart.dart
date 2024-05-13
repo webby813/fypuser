@@ -7,6 +7,7 @@ import 'package:fypuser/Components/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Components/spinner_widget.dart';
 import '../Firebase/delete_data.dart';
+import '../Firebase/retrieve_data.dart';
 import '../Firebase/update_data.dart';
 
 class Cart extends StatefulWidget {
@@ -21,6 +22,7 @@ class _CartState extends State<Cart> {
   late String userEmail;
 
   late Stream<QuerySnapshot> cartStream;
+  double grandTotal = 0.0;
 
   @override
   void initState() {
@@ -37,6 +39,12 @@ class _CartState extends State<Cart> {
           .doc(userEmail)
           .collection('cart')
           .snapshots();
+
+      RetrieveData().retrievePriceQty(userEmail).then((total){
+        setState(() {
+          grandTotal = total;
+        });
+      });
     });
   }
 
@@ -78,7 +86,6 @@ class _CartState extends State<Cart> {
                           );
                         } else {
                           final List<Widget> itemWidgets = [];
-                          final List<double> priceList = [];
                           final docs = snapshot.data?.docs ?? [];
                           for (var doc in docs) {
                             var itemName = doc['item_name'];
@@ -92,6 +99,11 @@ class _CartState extends State<Cart> {
                                 price: itemPrice,
                                 itemImage: itemImage,
                                 quantity: quantity.toString(),
+                                onUpdateGrandTotal: (amount) {
+                                  setState(() {
+                                    grandTotal += amount;
+                                  });
+                                },
                               ),
                             );
                           }
@@ -105,7 +117,6 @@ class _CartState extends State<Cart> {
                   ],
                 ),
               ),
-
 
             ),
             Align(
@@ -121,7 +132,7 @@ class _CartState extends State<Cart> {
                           Container(
                             margin: const EdgeInsets.only(top: 10),
                             child: GrandTitle.totalTitle(
-                                'Grand Total : RM 800.00', 20, FontWeight.bold),
+                                'Grand Total : RM ${grandTotal.toStringAsFixed(2)}', 20, FontWeight.bold),
                           ),
                         ],
                       ),
@@ -147,8 +158,7 @@ class _CartState extends State<Cart> {
                                     ),
                                   ),
                                 ),
-                              )
-                                  .toList(),
+                              ).toList(),
                               value: paymentType,
                               onChanged: (val) {
                                 setState(() {
@@ -190,6 +200,7 @@ class CartItem extends StatefulWidget {
   final String itemName;
   final String? price;
   final String? quantity;
+  final Function(double) onUpdateGrandTotal;
 
   const CartItem({
     super.key,
@@ -197,6 +208,7 @@ class CartItem extends StatefulWidget {
     required this.itemName,
     required this.price,
     required this.quantity,
+    required this.onUpdateGrandTotal
   });
 
   @override
@@ -231,6 +243,7 @@ class _CartItemState extends State<CartItem> {
       _quantity++;
     });
     UpdateData().updateAmount(widget.itemName, _quantity);
+    widget.onUpdateGrandTotal(double.parse(widget.price ?? '0'));
   }
 
   void _decrement() {
@@ -239,6 +252,7 @@ class _CartItemState extends State<CartItem> {
         _quantity--;
       });
       UpdateData().updateAmount(widget.itemName, _quantity);
+      widget.onUpdateGrandTotal(-double.parse(widget.price ?? '0'));
     }
   }
 
@@ -306,16 +320,16 @@ class _CartItemState extends State<CartItem> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                margin: const EdgeInsets.only(right: 20),
-                child: IconButton(
-                  onPressed: () {
-                    DeleteData().removeCartItem(widget.itemName);
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: CustomColors.warningRed,
-                  ),
-                )
+                  margin: const EdgeInsets.only(right: 20),
+                  child: IconButton(
+                    onPressed: () {
+                      DeleteData().removeCartItem(widget.itemName);
+                    },
+                    icon: const Icon(
+                      Icons.delete,
+                      color: CustomColors.warningRed,
+                    ),
+                  )
               ),
             ),
           ),
