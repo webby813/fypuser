@@ -6,6 +6,8 @@ import 'package:fypuser/Components/button_widget.dart';
 import 'package:fypuser/Components/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Components/spinner_widget.dart';
+import '../Firebase/delete_data.dart';
+import '../Firebase/update_data.dart';
 
 class Cart extends StatefulWidget {
   const Cart({Key? key}) : super(key: key);
@@ -26,7 +28,6 @@ class _CartState extends State<Cart> {
     _initializeStream();
   }
 
-  @override
   Future<void> _initializeStream() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -42,170 +43,174 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: CustomColors.defaultWhite,
-        elevation: 0,
-        centerTitle: true,
-        title: BarTitle.AppBarText('Cart'),
-        iconTheme: const IconThemeData(
-          color: CustomColors.primaryColor,
-        ),
-      ),
-      body: Stack(
-        children: [
-          Padding(
-              padding: EdgeInsets.only(bottom: 120),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: 500,
-                      height: 5,
-                    child: ColoredBox(
-                      color: CustomColors.primaryColor,
-                    ),
-                  ),
-
-                  StreamBuilder<QuerySnapshot>(
-                    stream: cartStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Spinner.loadingSpinner();
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      } else {
-                        final List<Widget> itemWidgets = [];
-                        final docs = snapshot.data?.docs ?? [];
-                        for (var doc in docs) {
-                          var itemName = doc['item_name'];
-                          var itemPrice = doc['price'];
-                          var itemImage = doc['item_picture'];
-                          var quantity = doc['quantity'];
-                          itemWidgets.add(
-                            CartItem(
-                              itemName: itemName,
-                              price: itemPrice,
-                              itemImage: itemImage,
-                              quantity: quantity,
-                            ),
-                          );
-                        }
-                        return ListView(
-                          shrinkWrap: true,
-                          children: itemWidgets,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-
+        appBar: AppBar(
+          backgroundColor: CustomColors.defaultWhite,
+          elevation: 0,
+          centerTitle: true,
+          title: BarTitle.AppBarText('Cart'),
+          iconTheme: const IconThemeData(
+            color: CustomColors.primaryColor,
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 140,
-              child: Container(
-                color: CustomColors.defaultWhite,
+        ),
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 120),
+              child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 10),
-                          child: GrandTitle.totalTitle(
-                              'Grand Total : RM 800.00', 20, FontWeight.bold),
-                        ),
-                      ],
+                    const SizedBox(
+                      width: 500,
+                      height: 5,
+                      child: ColoredBox(
+                        color: CustomColors.primaryColor,
+                      ),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField(
-                            items: ["Cash", "E-wallet"]
-                                .map<DropdownMenuItem<String>>(
-                                  (element) => DropdownMenuItem(
-                                value: element,
-                                child: SizedBox(
-                                  width: 150,
-                                  child: Row(
-                                    children: [
-                                      if (element == "Cash")
-                                        Icon(Icons.attach_money),
-                                      if (element == "E-wallet")
-                                        Icon(Icons.phone_iphone),
-                                      SizedBox(width: 8),
-                                      Text(element),
-                                    ],
-                                  ),
-                                ),
+
+                    StreamBuilder<QuerySnapshot>(
+                      stream: cartStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Spinner.loadingSpinner();
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else {
+                          final List<Widget> itemWidgets = [];
+                          final List<double> priceList = [];
+                          final docs = snapshot.data?.docs ?? [];
+                          for (var doc in docs) {
+                            var itemName = doc['item_name'];
+                            var itemPrice = doc['price'];
+                            var itemImage = doc['item_picture'];
+                            var quantity = doc['quantity'];
+
+                            itemWidgets.add(
+                              CartItem(
+                                itemName: itemName,
+                                price: itemPrice,
+                                itemImage: itemImage,
+                                quantity: quantity.toString(),
                               ),
-                            )
-                                .toList(),
-                            value: paymentType,
-                            onChanged: (val) {
-                              setState(() {
-                                paymentType = val!;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.circular(19),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.circular(19),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(left: 10),
-                          child: SecondButtonWidget.buttonWidget(
-                              50, 90, 'Order', CustomColors.defaultBlack, () {}),
-                        )
-                      ],
-                    )
+                            );
+                          }
+                          return ListView(
+                            shrinkWrap: true,
+                            children: itemWidgets,
+                          );
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
+
+
             ),
-          ),
-        ],
-      )
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 140,
+                child: Container(
+                  color: CustomColors.defaultWhite,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            child: GrandTitle.totalTitle(
+                                'Grand Total : RM 800.00', 20, FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField(
+                              items: ["Cash", "E-wallet"]
+                                  .map<DropdownMenuItem<String>>(
+                                    (element) => DropdownMenuItem(
+                                  value: element,
+                                  child: SizedBox(
+                                    width: 150,
+                                    child: Row(
+                                      children: [
+                                        if (element == "Cash")
+                                          const Icon(Icons.attach_money),
+                                        if (element == "E-wallet")
+                                          const Icon(Icons.phone_iphone),
+                                        const SizedBox(width: 8),
+                                        Text(element),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                                  .toList(),
+                              value: paymentType,
+                              onChanged: (val) {
+                                setState(() {
+                                  paymentType = val!;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(19),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(19),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: SecondButtonWidget.buttonWidget(
+                                50, 90, 'Order', CustomColors.defaultBlack, () {}),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
     );
   }
 }
 
 class CartItem extends StatefulWidget {
   final String? itemImage;
-  final String? itemName;
+  final String itemName;
   final String? price;
-  final int? quantity;
+  final String? quantity;
+
   const CartItem({
-    Key? key,
+    super.key,
     required this.itemImage,
-    this.itemName,
-    this.price,
-    this.quantity,
-  }) : super(key: key);
+    required this.itemName,
+    required this.price,
+    required this.quantity,
+  });
 
   @override
   State<CartItem> createState() => _CartItemState();
 }
 
 class _CartItemState extends State<CartItem> {
-  int _quantity = 1;
+  late int _quantity;
   late String downloadUrl = "";
 
   @override
   void initState() {
     super.initState();
+    _quantity = int.parse(widget.quantity!);
     loadItemPicture();
   }
 
@@ -217,7 +222,7 @@ class _CartItemState extends State<CartItem> {
         downloadUrl = imageUrl;
       });
     } catch (e) {
-      print('Error retrieving image URL: $e');
+      // print('Error retrieving image URL: $e');
     }
   }
 
@@ -225,6 +230,7 @@ class _CartItemState extends State<CartItem> {
     setState(() {
       _quantity++;
     });
+    UpdateData().updateAmount(widget.itemName, _quantity);
   }
 
   void _decrement() {
@@ -232,8 +238,10 @@ class _CartItemState extends State<CartItem> {
       setState(() {
         _quantity--;
       });
+      UpdateData().updateAmount(widget.itemName, _quantity);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +262,7 @@ class _CartItemState extends State<CartItem> {
               borderRadius: BorderRadius.circular(12),
               child: downloadUrl.isNotEmpty
                   ? Image.network(
-                downloadUrl!,
+                downloadUrl,
                 fit: BoxFit.cover,
               )
                   : Center(child: Spinner.loadingSpinner()),
@@ -269,7 +277,7 @@ class _CartItemState extends State<CartItem> {
               ),
               SizedBox(
                 width: 200,
-                child: OrderTitle.orderTitle(widget.price ?? '', 16, FontWeight.w300),
+                child: OrderTitle.orderTitle('RM ${widget.price}' ?? '', 16, FontWeight.w300),
               ),
               SizedBox(
                 width: 200,
@@ -299,10 +307,15 @@ class _CartItemState extends State<CartItem> {
               alignment: Alignment.centerRight,
               child: Container(
                 margin: const EdgeInsets.only(right: 20),
-                child: const Icon(
-                  Icons.delete,
-                  color: CustomColors.warningRed,
-                ),
+                child: IconButton(
+                  onPressed: () {
+                    DeleteData().removeCartItem(widget.itemName);
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: CustomColors.warningRed,
+                  ),
+                )
               ),
             ),
           ),

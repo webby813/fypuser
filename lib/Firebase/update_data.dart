@@ -1,9 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fypuser/Components/alertDialog_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+class UpdateData{
+  Future<void> updateAmount(String itemName, int newQuantity) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString("email");
+    final dbRef = FirebaseFirestore.instance;
+
+    final userCartItemSnapshot = await dbRef
+        .collection('users')
+        .doc(userEmail.toString())
+        .collection('cart')
+        .where('item_name', isEqualTo: itemName)
+        .get();
+
+    final userCartItemDoc = userCartItemSnapshot.docs.first;
+    await userCartItemDoc.reference.update({'quantity': newQuantity});
+  }
+}
 
 class UpdateUser{
   Future<void> updateUserInfo(String userid, String type, String newData) async{
