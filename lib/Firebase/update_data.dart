@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fypuser/Components/alertDialog_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class UpdateData{
   Future<void> updateAmount(String itemName, int newQuantity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -20,6 +20,33 @@ class UpdateData{
 
     final userCartItemDoc = userCartItemSnapshot.docs.first;
     await userCartItemDoc.reference.update({'quantity': newQuantity});
+  }
+
+  Future<void> topUpAmount(int topUpAmount) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString("email");
+    final dbRef = FirebaseFirestore.instance;
+
+    try {
+      DocumentSnapshot userDocSnapshot = await dbRef
+          .collection('users')
+          .doc(userEmail)
+          .get();
+
+      if (userDocSnapshot.exists) {
+        int currentWalletAmount = userDocSnapshot['wallet_balance'] ?? 0;
+        int newWalletAmount = (currentWalletAmount + topUpAmount) as int;
+
+        await dbRef
+            .collection('users')
+            .doc(userEmail)
+            .update({'wallet_balance': newWalletAmount});
+      } else {
+        print("User document does not exist.");
+      }
+    } catch (e) {
+      print("Error updating wallet amount: $e");
+    }
   }
 }
 
