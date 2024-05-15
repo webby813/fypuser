@@ -64,60 +64,46 @@ class _CartState extends State<Cart> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 120),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      width: 500,
-                      height: 5,
-                      child: ColoredBox(
-                        color: CustomColors.primaryColor,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: cartStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Spinner.loadingSpinner();
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    final List<Widget> itemWidgets = [];
+                    final docs = snapshot.data?.docs ?? [];
+                    for (var doc in docs) {
+                      var itemName = doc['item_name'];
+                      var itemPrice = doc['price'];
+                      var itemImage = doc['item_picture'];
+                      var quantity = doc['quantity'];
+
+                      itemWidgets.add(
+                        CartItem(
+                          itemName: itemName,
+                          price: itemPrice,
+                          itemImage: itemImage,
+                          quantity: quantity.toString(),
+                          onUpdateGrandTotal: (amount) {
+                            setState(() {
+                              grandTotal += amount;
+                            });
+                          },
+                        ),
+                      );
+                    }
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: itemWidgets,
                       ),
-                    ),
-
-                    StreamBuilder<QuerySnapshot>(
-                      stream: cartStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Spinner.loadingSpinner();
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
-                          );
-                        } else {
-                          final List<Widget> itemWidgets = [];
-                          final docs = snapshot.data?.docs ?? [];
-                          for (var doc in docs) {
-                            var itemName = doc['item_name'];
-                            var itemPrice = doc['price'];
-                            var itemImage = doc['item_picture'];
-                            var quantity = doc['quantity'];
-
-                            itemWidgets.add(
-                              CartItem(
-                                itemName: itemName,
-                                price: itemPrice,
-                                itemImage: itemImage,
-                                quantity: quantity.toString(),
-                                onUpdateGrandTotal: (amount) {
-                                  setState(() {
-                                    grandTotal += amount;
-                                  });
-                                },
-                              ),
-                            );
-                          }
-                          return ListView(
-                            shrinkWrap: true,
-                            children: itemWidgets,
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                    );
+                  }
+                },
               ),
-
             ),
             Align(
               alignment: Alignment.bottomCenter,
