@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UpdateData{
+class UpdateData {
   Future<void> updateAmount(String itemName, int newQuantity) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString("email");
@@ -22,7 +22,7 @@ class UpdateData{
     await userCartItemDoc.reference.update({'quantity': newQuantity});
   }
 
-  Future<void> topUpAmount(int topUpAmount) async {
+  Future<void> topUpAmount(int topUpAmount, String topUpMethod) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString("email");
     final dbRef = FirebaseFirestore.instance;
@@ -35,12 +35,27 @@ class UpdateData{
 
       if (userDocSnapshot.exists) {
         int currentWalletAmount = userDocSnapshot['wallet_balance'] ?? 0;
-        int newWalletAmount = (currentWalletAmount + topUpAmount) as int;
+        int newWalletAmount = currentWalletAmount + topUpAmount;
 
         await dbRef
             .collection('users')
             .doc(userEmail)
             .update({'wallet_balance': newWalletAmount});
+
+        // Generate unique ID for the top-up record
+        String uniqueId = generateUniqueId();
+
+        // Save top-up record
+        await dbRef
+            .collection('users')
+            .doc(userEmail)
+            .collection('top-up-record')
+            .doc(uniqueId)
+            .set({
+          'topUpAmount': topUpAmount,
+          'timestamp': DateTime.now(),
+          'topUpMethod' : topUpMethod
+        });
       } else {
         print("User document does not exist.");
       }
@@ -48,7 +63,25 @@ class UpdateData{
       print("Error updating wallet amount: $e");
     }
   }
+
+  Stream<double> getWalletBalance() async* {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString("email");
+    final dbRef = FirebaseFirestore.instance;
+
+    yield* dbRef
+        .collection('users')
+        .doc(userEmail)
+        .snapshots()
+        .map((snapshot) => snapshot['wallet_balance'].toDouble());
+  }
+
+  String generateUniqueId() {
+    DateTime now = DateTime.now();
+    return '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+  }
 }
+
 
 class UpdateUser{
   Future<void> updateUserInfo(String userid, String type, String newData) async{

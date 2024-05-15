@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
+import 'package:fypuser/Components/alertDialog_widget.dart';
 import 'package:fypuser/Components/container_widget.dart';
 import '../../Components/title_widget.dart';
 import '../../Firebase/update_data.dart';
@@ -13,16 +14,9 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   int topUpAmount = 0;
-  double balance = 0.0;
-  double topup = 150.0;
-  String selectedPaymentMethod = '';
   final TextEditingController _topUpController = TextEditingController();
-
-  void depositAmount(double amount) {
-    setState(() {
-      balance += amount;
-    });
-  }
+  final UpdateData _updateData = UpdateData();
+  String topUpMethod = '';
 
   @override
   Widget build(BuildContext context) {
@@ -45,42 +39,54 @@ class _WalletPageState extends State<WalletPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   /// Show Current Balance
-                  Card(
-                    color: CustomColors.defaultWhite,
-                    child: SizedBox(
-                      width: 225,
-                      height: 80,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 60),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                    width: 1.5, color: CustomColors.primaryColor),
+                  StreamBuilder<double>(
+                    stream: _updateData.getWalletBalance(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      double balance = snapshot.data ?? 0.0;
+                      return Card(
+                        color: CustomColors.defaultWhite,
+                        child: SizedBox(
+                          width: 225,
+                          height: 80,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 60),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                        width: 1.5, color: CustomColors.primaryColor),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Current Balance",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              "Current Balance",
-                              style: TextStyle(
-                                fontSize: 16,
+                              Container(
+                                margin: const EdgeInsets.only(top: 10, left: 80),
+                                child: Text(
+                                  "RM ${balance.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 10, left: 80),
-                            child: const Text(
-                              "RM 678.00",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
 
                   /// Top up options
@@ -261,10 +267,10 @@ class _WalletPageState extends State<WalletPage> {
                                     text: 'E-Wallet',
                                     icon: Icons.wallet,
                                     isSelected:
-                                    selectedPaymentMethod == 'E-Wallet',
+                                    topUpMethod == 'E-Wallet',
                                     onTap: () {
                                       setState(() {
-                                        selectedPaymentMethod = 'E-Wallet';
+                                        topUpMethod = 'E-Wallet';
                                       });
                                     },
                                   ),
@@ -272,10 +278,10 @@ class _WalletPageState extends State<WalletPage> {
                                     text: 'Credit-card',
                                     icon: Icons.credit_card,
                                     isSelected:
-                                    selectedPaymentMethod == 'Credit-card',
+                                    topUpMethod == 'Credit-card',
                                     onTap: () {
                                       setState(() {
-                                        selectedPaymentMethod = 'Credit-card';
+                                        topUpMethod = 'Credit-card';
                                       });
                                     },
                                   ),
@@ -283,11 +289,11 @@ class _WalletPageState extends State<WalletPage> {
                                     text: 'Online Banking',
                                     icon: Icons.account_balance,
                                     isSelected:
-                                    selectedPaymentMethod ==
+                                    topUpMethod ==
                                         'Online Banking',
                                     onTap: () {
                                       setState(() {
-                                        selectedPaymentMethod =
+                                        topUpMethod =
                                         'Online Banking';
                                       });
                                     },
@@ -311,13 +317,11 @@ class _WalletPageState extends State<WalletPage> {
             right: 0,
             bottom: 0,
             child: Container(
-              padding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  bottom:
-                  BorderSide(width: 1.5, color: CustomColors.lightGrey),
+                  bottom: BorderSide(width: 1.5, color: CustomColors.lightGrey),
                 ),
               ),
               child: Column(
@@ -331,7 +335,7 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "RM ${topup.toStringAsFixed(2)}",
+                    "RM ${topUpAmount.toStringAsFixed(2)}",
                     style: const TextStyle(
                       fontSize: 20,
                     ),
@@ -342,13 +346,25 @@ class _WalletPageState extends State<WalletPage> {
                       children: [
                         Expanded(
                           child: TextButton(
-                            onPressed: () {
-                              setState(() {
-                                topUpAmount = int.tryParse(_topUpController.text) ?? 0;
+                            onPressed: () async {
+                              if(topUpAmount == null || topUpMethod.isEmpty){
+                                showDialog(context: context, builder: (BuildContext context){
+                                  return const AlertDialogWidget(
+                                    title: 'Null value detected',content: 'You have to enter amount and select your topup method',
+                                  );
+                                });
+                              }else{
+                                setState(() {
+                                  topUpAmount = int.tryParse(_topUpController.text) ?? 0;
+                                });
 
-                                _topUpController.clear();
-                              });
-                              UpdateData().topUpAmount(topUpAmount);
+                                await _updateData.topUpAmount(topUpAmount, topUpMethod);
+                                setState(() {
+                                  topUpAmount = 0;
+                                  _topUpController.clear();
+                                  topUpMethod = '';
+                                });
+                              }
                             },
                             style: TextButton.styleFrom(
                               backgroundColor: CustomColors.primaryColor,
@@ -358,14 +374,13 @@ class _WalletPageState extends State<WalletPage> {
                             ),
                             child: const Text(
                               "Top-up",
-                              style: TextStyle(
-                                  color: CustomColors.defaultWhite),
+                              style: TextStyle(color: CustomColors.defaultWhite),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
