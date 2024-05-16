@@ -6,6 +6,7 @@ import 'package:fypuser/Components/button_widget.dart';
 import 'package:fypuser/Components/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Components/spinner_widget.dart';
+import '../Firebase/create_data.dart';
 import '../Firebase/delete_data.dart';
 import '../Firebase/retrieve_data.dart';
 import '../Firebase/update_data.dart';
@@ -18,10 +19,11 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  String paymentType = "Cash";
+  String paymentType = "E-wallet";
   late String userEmail;
 
-  late Stream<QuerySnapshot> cartStream;
+  // Initialize cartStream to an empty stream
+  Stream<QuerySnapshot> cartStream = Stream.empty();
   double grandTotal = 0.0;
 
   @override
@@ -32,18 +34,20 @@ class _CartState extends State<Cart> {
 
   Future<void> _initializeStream() async {
     final prefs = await SharedPreferences.getInstance();
+    userEmail = prefs.getString("email") ?? "";
+
+    // Update cartStream after userEmail has been retrieved
     setState(() {
-      userEmail = prefs.getString("email") ?? "";
       cartStream = FirebaseFirestore.instance
           .collection('users')
           .doc(userEmail)
           .collection('cart')
           .snapshots();
+    });
 
-      RetrieveData().retrievePriceQty(userEmail).then((total){
-        setState(() {
-          grandTotal = total;
-        });
+    RetrieveData().retrievePriceQty(userEmail).then((total){
+      setState(() {
+        grandTotal = total;
       });
     });
   }
@@ -166,7 +170,14 @@ class _CartState extends State<Cart> {
                           Container(
                             margin: const EdgeInsets.only(left: 10),
                             child: SecondButtonWidget.buttonWidget(
-                                50, 90, 'Order', CustomColors.defaultBlack, () {}),
+                                50, 90, 'Order', CustomColors.defaultBlack, () {
+                                  print(grandTotal);
+                              CreateOrder().makeOrder(context, grandTotal, paymentType).then((_) {
+                                setState(() {
+                                  grandTotal = 0.0; // Reset grand total after placing the order
+                                });
+                              });
+                            }),
                           )
                         ],
                       )
@@ -309,7 +320,11 @@ class _CartItemState extends State<CartItem> {
                   margin: const EdgeInsets.only(right: 20),
                   child: IconButton(
                     onPressed: () {
-                      DeleteData().removeCartItem(widget.itemName);
+                      DeleteData().removeCartItem(widget.itemName).then((_) {
+                        widget.onUpdateGrandTotal(
+                            -(_quantity * double.parse(widget.price ?? '0'))
+                        );
+                      });
                     },
                     icon: const Icon(
                       Icons.delete,
