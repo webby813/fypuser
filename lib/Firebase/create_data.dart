@@ -99,4 +99,85 @@ class UserDo {
       // print(e);
     }
   }
+
+}
+
+class CreateOrder{
+  Future<void> makeOrder(BuildContext context, double grandTotal, String paymentType) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString("email");
+    final dbRef = FirebaseFirestore.instance;
+
+    final userDocSnapshot = await dbRef.collection('users').doc(userEmail).get();
+
+    double currentBalance = 0.0;
+    String orderId = '${userEmail}#${DateTime.now().millisecondsSinceEpoch.toString()}';
+
+    ///Checking is user have available balance
+    if (userDocSnapshot.exists && paymentType == "E-wallet") {
+      currentBalance = double.parse(userDocSnapshot['wallet_balance'].toString());
+    }
+
+    ///Get where to copy data
+    final cartSnapshot = await dbRef.collection('users').doc(userEmail).collection('cart').get();
+
+    if (cartSnapshot.docs.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialogWidget(
+            title: 'Sorry !',
+            content: 'Your cart is empty, please add some items first!',
+          );
+        },
+      );
+    } else if (paymentType == 'Cash' || currentBalance > grandTotal) {
+      final orderDb = dbRef.collection('Orders').doc(orderId);
+      ///Doc field's content
+      Map<String, dynamic> orderData = {
+        'order_id': orderId,
+        'user_email': userEmail,
+        'payment_method': paymentType,
+        'paid_Amount': grandTotal,
+        'paid_Time': DateTime.now(),
+        'paid': paymentType == 'E-wallet' ? true : false,
+        'orderStatus': 'Preparing',
+      };
+      WriteBatch batch = dbRef.batch();
+
+      showDialog(context: context, builder: (BuildContext context){
+        return const SuccessDialog(text: "Order successful",);
+      });
+
+      ///Deduct wallet balance
+      if (paymentType == 'E-wallet') {
+        double newBalance = currentBalance - grandTotal;
+        await dbRef.collection('users').doc(userEmail).update({'wallet_balance': newBalance});
+      }
+
+      ///Set items
+      for (var doc in cartSnapshot.docs) {
+        batch.set(orderDb.collection('items').doc(doc.id), doc.data());
+      }
+
+      ///Set doc fields
+      batch.set(orderDb, orderData);
+      for (var doc in cartSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
+
+    } else if (currentBalance < grandTotal) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialogWidget(
+            title: 'Sorry !',
+            content: 'Please top-up your wallet or choose cash payment method!',
+          );
+        },
+      );
+    }
+  }
 }

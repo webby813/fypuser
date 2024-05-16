@@ -87,16 +87,19 @@ class AlertToChangeDialog extends StatelessWidget {
 }
 
 class SuccessDialog extends StatefulWidget {
-  const SuccessDialog({super.key});
+  final String text;
+
+  // Updated constructor to properly call the superclass constructor
+  const SuccessDialog({Key? key, required this.text}) : super(key: key);
 
   @override
   _SuccessDialogState createState() => _SuccessDialogState();
 
-  static void show(BuildContext context) {
+  static void show(BuildContext context, String text) {
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
-      builder: (context) => const SuccessDialog(),
+      builder: (context) => SuccessDialog(text: text),
     );
   }
 }
@@ -115,31 +118,40 @@ class _SuccessDialogState extends State<SuccessDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return const AlertDialog(
-      backgroundColor: CustomColors.defaultWhite,
-      content: Text('Add to cart successful'),
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      content: Text(
+          widget.text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w400
+        ),
+      ), // Accessing widget.text to display the provided text
     );
   }
 }
 
 
-
-
 class FailureDialog {
-  static void show(context) async {
+  static void show(BuildContext context) async {
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
       builder: (context) {
         return const AlertDialog(
-          backgroundColor: CustomColors.defaultWhite,
-          content: Text('An error occur, try again later'),
+          backgroundColor: Colors.white,
+          content: Center(
+            child: Text(
+              'An error occurred, try again later',
+              textAlign: TextAlign.center,
+            ),
+          ),
         );
       },
     );
     // Wait for 1 second before dismissing the dialog
-    await Future.delayed(
-        const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     Navigator.of(context).pop();
   }
 }
