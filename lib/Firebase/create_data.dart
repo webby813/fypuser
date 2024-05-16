@@ -102,24 +102,31 @@ class UserDo {
 
 }
 
-class CreateOrder{
+class CreateOrder {
   Future<void> makeOrder(BuildContext context, double grandTotal, String paymentType) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString("email");
     final dbRef = FirebaseFirestore.instance;
+
+    // Log the user email
+    print("User email: $userEmail");
 
     final userDocSnapshot = await dbRef.collection('users').doc(userEmail).get();
 
     double currentBalance = 0.0;
     String orderId = '${userEmail}#${DateTime.now().millisecondsSinceEpoch.toString()}';
 
-    ///Checking is user have available balance
+    // Checking if user has available balance
     if (userDocSnapshot.exists && paymentType == "E-wallet") {
       currentBalance = double.parse(userDocSnapshot['wallet_balance'].toString());
     }
 
-    ///Get where to copy data
+    // Get where to copy data
     final cartSnapshot = await dbRef.collection('users').doc(userEmail).collection('cart').get();
+    final orderRecordDb = dbRef.collection('users').doc(userEmail).collection('order_record').doc(orderId);
+
+    // Log cart details
+    print("Cart has ${cartSnapshot.docs.length} items.");
 
     if (cartSnapshot.docs.isEmpty) {
       showDialog(
@@ -133,7 +140,7 @@ class CreateOrder{
       );
     } else if (paymentType == 'Cash' || currentBalance > grandTotal) {
       final orderDb = dbRef.collection('Orders').doc(orderId);
-      ///Doc field's content
+      // Doc field's content
       Map<String, dynamic> orderData = {
         'order_id': orderId,
         'user_email': userEmail,
@@ -145,29 +152,38 @@ class CreateOrder{
       };
       WriteBatch batch = dbRef.batch();
 
-      showDialog(context: context, builder: (BuildContext context){
-        return const SuccessDialog(text: "Order successful",);
-      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const SuccessDialog(text: "Order successful",);
+        },
+      );
 
-      ///Deduct wallet balance
+      // Deduct wallet balance
       if (paymentType == 'E-wallet') {
         double newBalance = currentBalance - grandTotal;
         await dbRef.collection('users').doc(userEmail).update({'wallet_balance': newBalance});
       }
 
-      ///Set items
+      // Set items
       for (var doc in cartSnapshot.docs) {
+        print("Processing item: ${doc.id} with data: ${doc.data()}");
         batch.set(orderDb.collection('items').doc(doc.id), doc.data());
+        batch.set(orderRecordDb.collection('items').doc(doc.id), doc.data()); // Ensure we are adding to the correct sub-collection
       }
 
-      ///Set doc fields
+      // Set doc fields
       batch.set(orderDb, orderData);
       for (var doc in cartSnapshot.docs) {
         batch.delete(doc.reference);
       }
 
-      await batch.commit();
-
+      try {
+        await batch.commit();
+        print("Batch commit successful.");
+      } catch (e) {
+        print("Batch commit failed: $e");
+      }
     } else if (currentBalance < grandTotal) {
       showDialog(
         context: context,
