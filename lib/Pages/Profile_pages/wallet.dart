@@ -13,7 +13,7 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  int topUpAmount = 0;
+  double topUpAmount = 0.0; // Changed to double
   final TextEditingController _topUpController = TextEditingController();
   final UpdateData _updateData = UpdateData();
   String topUpMethod = '';
@@ -157,7 +157,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 10;
+                                      topUpAmount = 10.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -172,7 +172,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 20;
+                                      topUpAmount = 20.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -187,7 +187,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 30;
+                                      topUpAmount = 30.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -202,7 +202,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 50;
+                                      topUpAmount = 50.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -217,7 +217,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 100;
+                                      topUpAmount = 100.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -232,7 +232,7 @@ class _WalletPageState extends State<WalletPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      topUpAmount = 200;
+                                      topUpAmount = 200.0;
                                       _topUpController.text = topUpAmount.toString();
                                     });
                                   },
@@ -355,12 +355,12 @@ class _WalletPageState extends State<WalletPage> {
                                 });
                               }else{
                                 setState(() {
-                                  topUpAmount = int.tryParse(_topUpController.text) ?? 0;
+                                  topUpAmount = double.tryParse(_topUpController.text) ?? 0.0;
                                 });
 
-                                await _updateData.topUpAmount(topUpAmount, topUpMethod);
+                                await UpdateData().topUpAmount(topUpAmount, topUpMethod);
                                 setState(() {
-                                  topUpAmount = 0;
+                                  topUpAmount = 0.0;
                                   _topUpController.clear();
                                   topUpMethod = '';
                                 });

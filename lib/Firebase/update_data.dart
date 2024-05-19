@@ -22,7 +22,7 @@ class UpdateData {
     await userCartItemDoc.reference.update({'quantity': newQuantity});
   }
 
-  Future<void> topUpAmount(int topUpAmount, String topUpMethod) async {
+  Future<void> topUpAmount(double topUpAmount, String topUpMethod) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userEmail = prefs.getString("email");
     final dbRef = FirebaseFirestore.instance;
@@ -34,8 +34,8 @@ class UpdateData {
           .get();
 
       if (userDocSnapshot.exists) {
-        int currentWalletAmount = userDocSnapshot['wallet_balance'] ?? 0;
-        int newWalletAmount = currentWalletAmount + topUpAmount;
+        double currentWalletAmount = (userDocSnapshot['wallet_balance'] ?? 0).toDouble();
+        double newWalletAmount = currentWalletAmount + topUpAmount;
 
         await dbRef
             .collection('users')
@@ -54,7 +54,7 @@ class UpdateData {
             .set({
           'topUpAmount': topUpAmount,
           'timestamp': DateTime.now(),
-          'topUpMethod' : topUpMethod
+          'topUpMethod': topUpMethod
         });
       } else {
         print("User document does not exist.");
@@ -73,7 +73,7 @@ class UpdateData {
         .collection('users')
         .doc(userEmail)
         .snapshots()
-        .map((snapshot) => snapshot['wallet_balance'].toDouble());
+        .map((snapshot) => (snapshot['wallet_balance'] ?? 0).toDouble());
   }
 
   String generateUniqueId() {
@@ -81,6 +81,7 @@ class UpdateData {
     return '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
   }
 }
+
 
 
 class UpdateUser{

@@ -148,7 +148,7 @@ class CreateOrder {
         'paid_Amount': grandTotal,
         'paid_Time': DateTime.now(),
         'paid': paymentType == 'E-wallet' ? true : false,
-        'orderStatus': 'Preparing',
+        'order_Status': 'Incoming',
       };
       WriteBatch batch = dbRef.batch();
 
