@@ -43,7 +43,7 @@ class RetrieveData {
       return grandTotal;
     } catch (e) {
       // print('Error retrieving price and quantity: $e');
-      throw e; // Throw the error to indicate failure
+      throw e;
     }
   }
 
@@ -56,7 +56,7 @@ class RetrieveData {
         .collection('users')
         .doc(userEmail)
         .snapshots()
-        .map((snapshot) => snapshot['wallet_balance'].toDouble());
+        .map((snapshot) => (snapshot['wallet_balance'] ?? 0).toDouble());
   }
 }
 

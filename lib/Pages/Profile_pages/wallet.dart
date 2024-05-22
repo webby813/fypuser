@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fypuser/Color/color.dart';
 import 'package:fypuser/Components/alertDialog_widget.dart';
 import 'package:fypuser/Components/container_widget.dart';
+import 'package:fypuser/Firebase/retrieve_data.dart';
 import '../../Components/title_widget.dart';
 import '../../Firebase/update_data.dart';
 
@@ -40,7 +41,7 @@ class _WalletPageState extends State<WalletPage> {
                 children: [
                   /// Show Current Balance
                   StreamBuilder<double>(
-                    stream: _updateData.getWalletBalance(),
+                    stream: RetrieveData().getWalletBalance(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();

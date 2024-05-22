@@ -64,18 +64,6 @@ class UpdateData {
     }
   }
 
-  Stream<double> getWalletBalance() async* {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userEmail = prefs.getString("email");
-    final dbRef = FirebaseFirestore.instance;
-
-    yield* dbRef
-        .collection('users')
-        .doc(userEmail)
-        .snapshots()
-        .map((snapshot) => (snapshot['wallet_balance'] ?? 0).toDouble());
-  }
-
   String generateUniqueId() {
     DateTime now = DateTime.now();
     return '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
